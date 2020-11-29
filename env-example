@@ -1,0 +1,5 @@
+MONGO_USER=flaskuser
+MONGO_PASS=flaskpass
+MONGO_DB=flaskdb
+MONGO_ROOT_USER=admin_user
+MONGO_ROOT_PASS=admin_pass
