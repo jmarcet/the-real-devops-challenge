@@ -1,10 +1,10 @@
 db.createUser({
-  user: '$MONGO_USER',
-  pwd: '$MONGO_PASS',
+  user: 'flaskuser',
+  pwd: 'flaskpass',
   roles: [
     {
       role: 'dbOwner',
-      db: '$MONGO_INITDB_DATABASE',
+      db: 'flaskdb',
     },
   ],
 });

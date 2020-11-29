@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+      tier: backend
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mongodb
+        tier: backend
+    spec:
+      containers:
+      - name: mongodb
+        image: jmarcet/trdc-mongo:1.0.0
+        volumeMounts:
+        - name: storage
+          mountPath: /data/db
+        env:
+        - name: MONGO_USER
+          value: "flaskuser"
+        - name: MONGO_PASS
+          value: "flaskpass"
+        - name: MONGO_INITDB_DATABASE
+          value: "flaskdb"
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: "admin_user"
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: "admin_pass"
+        ports:
+        - name: mongodb
+          containerPort: 27017
+      volumes:
+      - name: storage
+        emptyDir: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: default
+spec:
+  type: ClusterIP
+  ports:
+    - port: 27017
+      targetPort: 27017
+      protocol: TCP
+  selector:
+      app: mongodb
+      tier: backend
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flaskapp
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: flaskapp
+      tier: frontend
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: flaskapp
+        tier: frontend
+    spec:
+      containers:
+      - name: flaskapp
+        image: jmarcet/trdc:1.0.0
+        env:
+        - name: MONGO_URI
+          value: "mongodb://flaskuser:flaskpass@mongodb:27017/flaskdb"
+        ports:
+        - name: http
+          containerPort: 8080
